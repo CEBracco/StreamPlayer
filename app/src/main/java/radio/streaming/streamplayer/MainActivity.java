@@ -12,8 +12,9 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import co.mobiwise.library.RadioListener;
-import co.mobiwise.library.RadioManager;
+import co.mobiwise.library.radio.RadioListener;
+import co.mobiwise.library.radio.RadioManager;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RadioListener {
@@ -44,7 +45,6 @@ public class MainActivity extends AppCompatActivity
         streamTitle = getString(R.string.app_name);
 
         mRadioManager = RadioManager.with(this);
-        mRadioManager.enableNotification(true);
         mRadioManager.registerListener(this);
 
         playPauseButton = (ImageButton)findViewById(R.id.playPauseButton);
@@ -53,10 +53,10 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 if(isPlaying){
                     mRadioManager.stopRadio();
-                    playPauseButton.setImageResource(R.drawable.btn_playback_play);
+                    playPauseButton.setImageResource(R.drawable.ic_pause_black_24dp);
                 } else {
                     mRadioManager.startRadio(streamURL);
-                    playPauseButton.setImageResource(R.drawable.btn_playback_pause);
+                    playPauseButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
                 }
             }
         });
@@ -134,6 +134,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onRadioLoading() {
+
+    }
+
+    @Override
     public void onRadioConnected() {
     }
 
@@ -153,7 +158,7 @@ public class MainActivity extends AppCompatActivity
     public void onMetaDataReceived(String s, String s1) {
         if(s != null && s.equals("StreamTitle")){
             // set radio art
-            mRadioManager.updateNotification(streamTitle,s1, R.drawable.default_art);
+            mRadioManager.updateNotification(streamTitle,s1, R.drawable.default_art, R.drawable.default_art);
             final String metaData = s1;
             runOnUiThread(new Runnable() {
                 @Override
@@ -165,16 +170,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onError() {
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         try {
             if(mRadioManager.isPlaying()){
-                playPauseButton.setImageResource(R.drawable.btn_playback_pause);
+                playPauseButton.setImageResource(R.drawable.ic_pause_black_24dp);
             } else {
-                playPauseButton.setImageResource(R.drawable.btn_playback_play);
+                playPauseButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
             }
         } catch (Exception e) {
-            playPauseButton.setImageResource(R.drawable.btn_playback_play);
+            playPauseButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
         }
     }
 }
