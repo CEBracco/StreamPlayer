@@ -165,7 +165,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMetaDataReceived(String s, String s1) {
-        Log.d(s,s1);
         if(s != null && s.equals("StreamTitle")){
             // set radio art
             mRadioManager.updateNotification(streamTitle,s1, R.drawable.ic_notification, R.mipmap.ic_launcher);
