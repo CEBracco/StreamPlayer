@@ -1,4 +1,4 @@
-package radio.streaming.streamplayer;
+package ar.com.ladiscoradio;
 
 import org.junit.Test;
 

@@ -1,7 +1,6 @@
-package radio.streaming.streamplayer;
+package ar.com.ladiscoradio;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -30,8 +29,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setContentView(ar.com.ladiscoradio.R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(ar.com.ladiscoradio.R.id.toolbar);
         setSupportActionBar(toolbar);
 
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -43,11 +42,11 @@ public class MainActivity extends AppCompatActivity
 //        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 //        navigationView.setNavigationItemSelectedListener(this);
 
-        streamTitle = getString(R.string.app_name);
+        streamTitle = getString(ar.com.ladiscoradio.R.string.app_name);
         mRadioManager = RadioManager.with(this);
         mRadioManager.registerListener(this);
 
-        playPauseButton = (ImageButton)findViewById(R.id.playPauseButton);
+        playPauseButton = (ImageButton)findViewById(ar.com.ladiscoradio.R.id.playPauseButton);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,14 +57,14 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-        playPauseButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+        playPauseButton.setImageResource(ar.com.ladiscoradio.R.drawable.ic_play_arrow_black_24dp);
 
-        metadataTextView = findViewById(R.id.metadata);
+        metadataTextView = findViewById(ar.com.ladiscoradio.R.id.metadata);
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(ar.com.ladiscoradio.R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -88,7 +87,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == ar.com.ladiscoradio.R.id.action_settings) {
             return true;
         }
 
@@ -101,21 +100,21 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == ar.com.ladiscoradio.R.id.nav_camera) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == ar.com.ladiscoradio.R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == ar.com.ladiscoradio.R.id.nav_slideshow) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == ar.com.ladiscoradio.R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == ar.com.ladiscoradio.R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == ar.com.ladiscoradio.R.id.nav_send) {
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(ar.com.ladiscoradio.R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -147,7 +146,7 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                playPauseButton.setImageResource(R.drawable.ic_pause_black_24dp);
+                playPauseButton.setImageResource(ar.com.ladiscoradio.R.drawable.ic_pause_black_24dp);
             }
         });
     }
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                playPauseButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+                playPauseButton.setImageResource(ar.com.ladiscoradio.R.drawable.ic_play_arrow_black_24dp);
             }
         });
     }
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity
     public void onMetaDataReceived(String s, String s1) {
         if(s != null && s.equals("StreamTitle")){
             // set radio art
-            mRadioManager.updateNotification(streamTitle,s1, R.drawable.ic_notification, R.mipmap.ic_launcher);
+            mRadioManager.updateNotification(streamTitle,s1, ar.com.ladiscoradio.R.drawable.ic_notification, ar.com.ladiscoradio.R.mipmap.ic_launcher);
             final String metaData = s1;
             runOnUiThread(new Runnable() {
                 @Override

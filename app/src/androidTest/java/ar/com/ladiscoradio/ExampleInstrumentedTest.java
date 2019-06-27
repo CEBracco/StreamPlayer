@@ -1,4 +1,4 @@
-package radio.streaming.streamplayer;
+package ar.com.ladiscoradio;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
