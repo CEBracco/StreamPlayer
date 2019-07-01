@@ -1,6 +1,7 @@
 package ar.com.ladiscoradio;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,17 +13,19 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import co.mobiwise.library.radio.RadioListener;
-import co.mobiwise.library.radio.RadioManager;
+import com.example.jean.jcplayer.JcAudio;
+import com.example.jean.jcplayer.JcPlayerService;
+import com.example.jean.jcplayer.JcPlayerView;
 
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RadioListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    RadioManager mRadioManager;
+    private JcPlayerView jcplayerView;
     ImageButton playPauseButton;
     Boolean isPlaying = false;
-    private String streamURL = "http://www.alsolnet.com/stream/ladiscoradio/listen.pls";
+    private String streamURL = "http://streamlky.alsolnet.com:443/ladiscoradio";
     private String streamTitle;
     TextView metadataTextView;
 
@@ -33,27 +36,18 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(ar.com.ladiscoradio.R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.addDrawerListener(toggle);
-//        toggle.syncState();
-
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        navigationView.setNavigationItemSelectedListener(this);
-
         streamTitle = getString(ar.com.ladiscoradio.R.string.app_name);
-        mRadioManager = RadioManager.with(this);
-        mRadioManager.registerListener(this);
+
+        initPlayer();
 
         playPauseButton = (ImageButton)findViewById(ar.com.ladiscoradio.R.id.playPauseButton);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(isPlaying){
-                    mRadioManager.stopRadio();
+                    //mRadioManager.stopRadio();
                 } else {
-                    mRadioManager.startRadio(streamURL);
+                    //mRadioManager.startRadio(streamURL);
                 }
             }
         });
@@ -122,15 +116,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mRadioManager.connect();
+        //mRadioManager.connect();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mRadioManager.disconnect();
+        //mRadioManager.disconnect();
     }
-
+    /*
     @Override
     public void onRadioLoading() {
 
@@ -180,15 +174,28 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onError() {
 
-    }
+    }*/
 
     @Override
     protected void onResume() {
         super.onResume();
     }
-
+/*
     @Override
     public void onAudioSessionId(int i) {
 
+    }*/
+
+    private void initPlayer() {
+        jcplayerView = (JcPlayerView) findViewById(R.id.jcplayer);
+        ArrayList<JcAudio> jcAudios = new ArrayList<>();
+        jcAudios.add(JcAudio.createFromURL(streamTitle,streamURL));
+        jcplayerView.createNotification();
+        jcplayerView.initPlaylist(jcAudios);
+
+        View buttonNext = (View) findViewById(R.id.btn_next);
+        buttonNext.setVisibility(View.GONE);
+        View buttonPrevious = (View) findViewById(R.id.btn_prev);
+        buttonPrevious.setVisibility(View.GONE);
     }
 }
