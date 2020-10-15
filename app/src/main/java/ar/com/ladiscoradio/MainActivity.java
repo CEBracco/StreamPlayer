@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.exoplayer2.ExoPlayer;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mBound = false;
     private MusicService musicService;
     private static final int READ_PHONE_STATE_REQUEST_CODE = 22;
-    private ServiceConnection serviceConnection = getServiceConnection();
+    private ServiceConnection serviceConnection;
     private Snackbar connectionAlert;
 
     @Override
@@ -56,6 +57,11 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         streamTitle = getString(ar.com.ladiscoradio.R.string.app_name);
+
+        if(this.serviceConnection == null) {
+            Log.d("binded", "onCreate: binded");
+            this.serviceConnection = getServiceConnection(this);
+        }
 
         playPauseButton = (ImageButton)findViewById(ar.com.ladiscoradio.R.id.playPauseButton);
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -193,7 +199,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if(mBound){
+        if(this.serviceConnection != null && mBound) {
             musicService.setListener(this);
         }
     }
@@ -266,13 +272,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private ServiceConnection getServiceConnection() {
+    private ServiceConnection getServiceConnection(ExoPlayer.EventListener listener) {
         if (this.serviceConnection == null) {
             this.serviceConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder iBinder) {
                     MusicService.MusicBinder mServiceBinder = (MusicService.MusicBinder) iBinder;
                     musicService = mServiceBinder.getService();
+                    musicService.setListener(listener);
                     mBound = true;
                 }
 

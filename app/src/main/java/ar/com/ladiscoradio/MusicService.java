@@ -10,11 +10,13 @@ import android.util.Log;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -66,7 +68,8 @@ public class MusicService extends Service {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), "ExoPlayerDemo");
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         Handler mainHandler = new Handler();
-        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(channelUrl), dataSourceFactory, extractorsFactory, mainHandler, null);
+        MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(Uri.parse(channelUrl));
+//        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(channelUrl), dataSourceFactory, extractorsFactory, mainHandler, null);
         player.prepare(mediaSource);
         player.setPlayWhenReady(true);
     }
@@ -77,13 +80,14 @@ public class MusicService extends Service {
     }
 
     public boolean isPlaying() {
-        return player.getPlaybackState() == 3;
+        return player.getPlaybackState() == Player.STATE_READY;
     }
 
     public void setListener(ExoPlayer.EventListener eventListener) {
         if(this.eventListener != eventListener) {
             this.eventListener = eventListener;
             player.addListener(eventListener);
+            Log.d("LISTENER", "setListener: We got listener!");
         }
     }
 

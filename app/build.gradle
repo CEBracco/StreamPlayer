@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "ar.com.ladiscoradio"
         minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 29
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -33,6 +33,17 @@ dependencies {
     //implementation 'com.github.iammert:RadioPlayerService:fa8a61deb5'
     //implementation 'com.github.mark-dlc:RadioPlayerService:1.5.1'
 //    implementation 'com.github.iRajul:JcPlayer:165e977ba7'
-    implementation 'com.google.android.exoplayer:exoplayer:2.10.2'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.8'
     implementation 'androidx.cardview:cardview:1.0.0'
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == "androidx.appcompat") {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion "1.+"
+            }
+        }
+    }
 }
