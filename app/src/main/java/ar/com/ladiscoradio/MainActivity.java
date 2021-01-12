@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity
 
     ImageButton playPauseButton;
     Boolean isPlaying = false;
-    private String streamURL = "http://streamlky.alsolnet.com:443/ladiscoradio";
+    private String streamURL = "http://stream.zeno.fm/zhaacap79f0uv";
     private String streamTitle;
     TextView metadataTextView;
     private boolean mBound = false;
