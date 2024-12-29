@@ -1,12 +1,18 @@
 package ar.com.ladiscoradio;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -28,13 +34,16 @@ public class MusicService extends Service {
     private SimpleExoPlayer player;
     private ExoPlayer.EventListener eventListener;
     private final Binder mBinder = new MusicBinder();
+    private final Integer NOTIFICATION_ID = 1;
 
     @Override
     public void onCreate() {
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        DefaultTrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
-        player = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), trackSelector);
+//        DefaultBandwidthMeter.Builder bandwidthMeterBuilder = new DefaultBandwidthMeter.Builder(getApplicationContext());
+//        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterBuilder.build();
+//        AdaptiveTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
+//        DefaultTrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+//        player = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), trackSelector);
+        player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
         super.onCreate();
     }
 
@@ -46,7 +55,9 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+        //super.onStartCommand(intent, flags, startId);
+
+        return START_STICKY;
     }
 
     @Override
@@ -61,6 +72,8 @@ public class MusicService extends Service {
 
     @Override
     public void onDestroy() {
+        this.stop();
+        player.release();
         super.onDestroy();
     }
 
@@ -70,11 +83,29 @@ public class MusicService extends Service {
         Handler mainHandler = new Handler();
         MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(Uri.parse(channelUrl));
 //        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(channelUrl), dataSourceFactory, extractorsFactory, mainHandler, null);
-        player.prepare(mediaSource);
+        player.setMediaSource(mediaSource);
+        player.prepare();
         player.setPlayWhenReady(true);
+
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this, "AppNotificationChannel")
+                .setContentTitle("VINILO 98.9")
+                .setContentText("Reproduciendo...")
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSilent(true)
+                .setPriority(5)
+                .setContentIntent(pendingIntent)
+                .build();
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     public void stop() {
+        stopForeground(true);
+
         player.setPlayWhenReady(false);
         player.stop();
     }
@@ -93,3 +124,5 @@ public class MusicService extends Service {
 
 
 }
+
+

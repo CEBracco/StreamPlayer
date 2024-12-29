@@ -1,6 +1,9 @@
 package ar.com.ladiscoradio;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -11,9 +14,12 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     private static final int READ_PHONE_STATE_REQUEST_CODE = 22;
     private ServiceConnection serviceConnection;
     private Snackbar connectionAlert;
+    private Intent mServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         metadataTextView = findViewById(ar.com.ladiscoradio.R.id.metadata);
 
         processPermissions();
+        createNotificationChannel();
     }
 
     @Override
@@ -142,8 +150,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(MainActivity.this, MusicService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if(!isMyServiceRunning(MusicService.class)) {
+            mServiceIntent = new Intent(MainActivity.this, MusicService.class);
+            bindService(mServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
     @Override
@@ -153,11 +163,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (mBound) {
+            stopService(mServiceIntent);
             unbindService(serviceConnection);
             mBound = false;
         }
+        super.onDestroy();
     }
 
     public void onRadioStarted() {
@@ -206,6 +217,7 @@ public class MainActivity extends AppCompatActivity
 
     private void processPermissions() {
         processPhoneListenerPermission();
+        // processBatteryPermissions();
         MainActivity activity = this;
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -239,6 +251,19 @@ public class MainActivity extends AppCompatActivity
     private void processPhoneListenerPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, READ_PHONE_STATE_REQUEST_CODE);
+        }
+    }
+
+    private void processBatteryPermissions() {
+        String packageName = this.getPackageName();
+        PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
         }
     }
 
@@ -285,7 +310,6 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    System.exit(0);
                 }
             };
         }
@@ -303,5 +327,30 @@ public class MainActivity extends AppCompatActivity
         if(this.connectionAlert != null) {
             connectionAlert.dismiss();
         }
+    }
+
+    public static final String CHANNEL_ID = "AppNotificationChannel";
+    private void createNotificationChannel() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "App Notification",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i ("isMyServiceRunning?", true+"");
+                return true;
+            }
+        }
+        Log.i ("isMyServiceRunning?", false+"");
+        return false;
     }
 }
